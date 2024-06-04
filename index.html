@@ -3,8 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <script src="./script.js" type="module"></script>
+    <title>Beltmatic solver</title>
+    <script src="./script.js" type="module" defer></script>
+    <link rel="stylesheet" href="style.css" />
   </head>
-  <body></body>
+  <body>
+    <h1>Beltmatic solver</h1>
+    <form action="" id="mainform">
+      <div>Max level extractor you have unlocked</div>
+      <input type="number" id="max" min="1" placeholder="max" value="1" />
+      <div>Target number</div>
+      <input type="number" id="target" min="1" placeholder="target" value="1" />
+      <div class="grid">
+        <input type="checkbox" name="" id="add" checked />
+        <label for="add">Allow addition</label>
+        <input type="checkbox" name="" id="multiply" checked />
+        <label for="multiply">Allow multiplication</label>
+        <input type="checkbox" name="" id="exponentiation" checked />
+        <label for="exponentiation">Allow exponentiation</label>
+      </div>
+      <button type="submit">Calculate!</button>
+    </form>
+    <div id="progress"></div>
+    <div id="result"></div>
+  </body>
 </html>

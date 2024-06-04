@@ -1,5 +1,4 @@
 const cache = {};
-var cache_max = undefined;
 
 const calculate = (settings, max, target) => {
   // cache
@@ -151,9 +150,6 @@ const purgeCache = () => {
 
 const solve = (settings, max, target) => {
   // purge cache if max number is not the same
-  if (cache_max != max) {
-    purgeCache();
-    cache_max = max;
-  }
+  purgeCache();
   return calculate(settings, max, target);
 };
