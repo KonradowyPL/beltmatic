@@ -1,36 +1,75 @@
 "use strict";
+
 const settings = {
   add: true,
   multiply: true,
   exponents: true,
 };
 
-const max = 20;
-const target = 145;
-const primes = sieveOfEratosthenes(target);
+const max = 2;
+const target = 65536;
+const cache = {};
 
 const solve = (settings, max, target) => {
-  // you can extract this number
-  if (target <= max) return [{ number: target, source: "extractor" }, 1];
+  // cache
+  if (cache[target]) return cache[target];
 
-  const aditionSteps = Math.ceil(max / target);
+  // you can extract this number
+  if (target <= max) {
+    cache[target] = [{ number: target, source: "extractor" }, 0];
+    return cache[target];
+  }
+
+  // vars for min solution
+  var min = Infinity;
+  var min_solution = undefined;
+
+  const aditionSteps = Math.ceil(target / max);
 
   // multiplication
+  // we have to asume that unlocking exponents
+  // means having unlocked multiplying
   if (settings.multiply) {
     const factors = findPrimeFactors(target);
-    const premutations = generateCombinations(factors);
-    const cases = premutations.map((arr) => [
-      multiplyAll(arr[0]),
-      multiplyAll(arr[1]),
-    ]);
 
-    // TODO: change this to a larger number
-    var min = 9999999999;
-    var min_solution = undefined;
-    cases.forEach((solution) => {
+    if (
+      settings.exponents && // exponents unlocked
+      factors.length > 1 &&
+      // all elements in array are the same
+      factors.every((val) => val === factors[0])
+    ) {
+      // target = base ^ exponents
+      const base = factors[0];
+      const exponent = factors.length;
+
+      const a = solve(settings, max, base); // solve for base
+      const b = solve(settings, max, exponent); // solve for expoenent
+
+      min = a[1] + b[1]; // calculate amount of steps
+      min_solution = {
+        a: a[0],
+        b: b[0],
+        source: "exponentiate",
+      };
+    }
+
+    // generate all possible multiplying options
+    // where target = a * b
+    const premutations = generateCombinations(factors);
+
+    // for loop instead of foreach to save stack space :(
+    for (let i = 0; i < premutations.length; i++) {
+      const premutation = premutations[i];
+
+      const solution = [
+        // try all of premutations
+        multiplyAll(premutation[0]),
+        multiplyAll(premutation[1]),
+      ];
+      // solve for a and b
       const a = solve(settings, max, solution[0]);
       const b = solve(settings, max, solution[1]);
-      const steps = a[1] + b[1];
+      const steps = a[1] + b[1]; // calculate amount of steps
       if (min > steps) {
         min = steps;
         min_solution = {
@@ -39,48 +78,37 @@ const solve = (settings, max, target) => {
           source: "multiply",
         };
       }
-    });
-    if (min_solution) {
-      const obj = {};
-      obj[target] = min_solution;
-      return [obj, min];
     }
   }
 
-  // we know that amount of steps will be Math.ceil(max/target)
-  // addition by subtraction
-  if (settings.add) {
-    const obj = {};
-    const a = solve(settings, max, target - max);
-    const b = solve(settings, max, max);
-    obj[target] = {
-      a: a[0],
-      b: b[0],
-      source: "add",
-    };
-    return [obj, a[1] + b[1]];
-  }
-};
+  // we can safely (?) skip addition solution
+  // if multiplying already gave better solution
+  if (settings.add && min < aditionSteps) {
+    // loop for each number to max extracted
+    for (let num = 1; num <= max; num++) {
+      const a = solve(settings, max, target - num); // solve for remaining number
+      const b = solve(settings, max, num); // solve for number
+      const steps = a[1] + b[1];
 
-console.log(solve(settings, max, target));
-
-// returns all primes less than number
-// TODO: caching
-function sieveOfEratosthenes(n) {
-  let sieve = [],
-    i,
-    j,
-    primes = [];
-  for (i = 2; i <= n; ++i) {
-    if (!sieve[i]) {
-      primes.push(i);
-      for (j = i << 1; j <= n; j += i) {
-        sieve[j] = true;
+      if (steps < min) {
+        min = steps;
+        min_solution = {
+          a: a[0],
+          b: b[0],
+          source: "add",
+        };
       }
     }
   }
-  return primes;
-}
+
+  // save data to cache
+  const obj = {};
+  obj[target] = min_solution;
+  cache[target] = [obj, min + 1];
+  return cache[target];
+};
+
+console.log(solve(settings, max, target));
 
 function generateCombinations(arr) {
   const results = [];
