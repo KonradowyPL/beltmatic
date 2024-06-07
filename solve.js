@@ -40,7 +40,7 @@ const calculate = (settings, max, target) => {
         a: a[0],
         b: b[0],
         source: "exponentiate",
-        nuber: target,
+        number: target,
       };
     }
 
@@ -92,6 +92,7 @@ const calculate = (settings, max, target) => {
           a: a[0],
           b: b[0],
           source: "add",
+          number: target,
         };
       }
     }

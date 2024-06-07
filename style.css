@@ -2,3 +2,35 @@
   display: grid;
   grid-template-columns: min-content auto;
 }
+
+#result div:not(.data):not(.header),
+#result {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  align-items: center;
+}
+
+#result .data {
+  display: flex;
+  flex-direction: row;
+}
+
+.data > div {
+  width: 50%;
+}
+
+#result .header {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+div:has(.data) > .header::before,
+div:has(.data) > .header::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 22%;
+  background-color: black;
+}
