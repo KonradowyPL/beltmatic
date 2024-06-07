@@ -14,10 +14,24 @@ document.getElementById("mainform").onsubmit = async (e) => {
   progress.textContent = "Caluclating...";
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  try {
-    const answer = solve(settings, max, target);
-    progress.textContent = `Succes: ${JSON.stringify(answer)}`;
-  } catch (e) {
-    progress.textContent = `Error: ${e.message}`;
-  }
+  // try {
+  const answer = solve(settings, max, target);
+  progress.textContent = `Succes: ${JSON.stringify(answer)}`;
+  document.getElementById("result").innerHTML = display(answer[0]);
+  // } catch (e) {
+  //   progress.textContent = `Error: ${e.message}`;
+  // }
+};
+
+const display = (data) => {
+  const type = data.source;
+  if (type == "extractor") return `${data.number}`;
+  const map = {
+    add: "(%a+%b)",
+    multiply: "(%a*%b)",
+    exponentiate: "(%a<sup>%b</sup>)",
+  };
+  return map[data.source]
+    .replace("%a", display(data.a))
+    .replace("%b", display(data.b));
 };

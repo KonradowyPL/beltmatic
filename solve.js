@@ -40,6 +40,7 @@ const calculate = (settings, max, target) => {
         a: a[0],
         b: b[0],
         source: "exponentiate",
+        nuber: target,
       };
     }
 
@@ -66,14 +67,13 @@ const calculate = (settings, max, target) => {
           a: a[0],
           b: b[0],
           source: "multiply",
+          number: target,
         };
       }
     }
     // save data to cache
     if (min_solution && min < aditionSteps) {
-      const obj = {};
-      obj[target] = min_solution;
-      cache[target] = [obj, min + 1];
+      cache[target] = [min_solution, min + 1];
       return cache[target];
     }
   }
@@ -98,9 +98,7 @@ const calculate = (settings, max, target) => {
   }
 
   // save data to cache
-  const obj = {};
-  obj[target] = min_solution;
-  cache[target] = [obj, min + 1];
+  cache[target] = [min_solution, min + 1];
   return cache[target];
 };
 
@@ -145,11 +143,19 @@ function multiplyAll(items) {
 export { solve, purgeCache };
 
 const purgeCache = () => {
-  for (let prop in cache) if (cache.hasOwnProperty(cache)) delete cache[prop];
+  for (var prop in cache) {
+    if (cache.hasOwnProperty(prop)) {
+      delete cache[prop];
+    }
+  }
 };
 
 const solve = (settings, max, target) => {
   // purge cache if max number is not the same
   purgeCache();
-  return calculate(settings, max, target);
+  console.log(cache);
+
+  const answer = calculate(settings, max, target);
+  console.log(cache);
+  return answer;
 };
