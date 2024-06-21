@@ -9,7 +9,7 @@ document.getElementById("mainform").onsubmit = async (e) => {
   const settings = {
     add: document.getElementById("add").checked,
     multiply: document.getElementById("multiply").checked,
-    exponents: document.getElementById("add").checked,
+    exponents: document.getElementById("exponentiation").checked,
   };
   const max = +document.getElementById("max").value;
   const target = +document.getElementById("target").value;
