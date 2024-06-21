@@ -3,34 +3,41 @@
   grid-template-columns: min-content auto;
 }
 
-#result div:not(.data):not(.header),
-#result {
+.table {
+  outline: 1px solid black;
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  align-items: center;
+  min-width: 50%;
+  min-width: 5px;
 }
 
-#result .data {
+.data {
   display: flex;
   flex-direction: row;
 }
 
-.data > div {
-  width: 50%;
+.header {
+  text-align: center;
+  height: 25px;
+  background-color: #ddd;
+  height: max-content;
+  padding: 2px;
 }
 
-#result .header {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+#result {
+  display: inline-flex;
 }
 
-div:has(.data) > .header::before,
-div:has(.data) > .header::after {
-  content: "";
-  display: block;
-  height: 2px;
-  width: 22%;
-  background-color: black;
+
+.table:not(:hover) > .header{
+  background-color: #fff;
+}
+
+
+details:has(:empty) {
+  display: none;
+}
+
+#result:empty {
+  display: none;
 }

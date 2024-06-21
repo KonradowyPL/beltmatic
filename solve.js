@@ -141,7 +141,7 @@ function multiplyAll(items) {
   }
   return result;
 }
-export { solve, purgeCache };
+export { solve, purgeCache, getCache };
 
 const purgeCache = () => {
   for (var prop in cache) {
@@ -151,12 +151,14 @@ const purgeCache = () => {
   }
 };
 
+const getCache = () => {
+  return cache
+}
+
 const solve = (settings, max, target) => {
   // purge cache if max number is not the same
   purgeCache();
-  console.log(cache);
 
   const answer = calculate(settings, max, target);
-  console.log(cache);
   return answer;
 };
