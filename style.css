@@ -4,7 +4,6 @@
 }
 
 .table {
-  outline: 1px solid black;
   display: flex;
   flex-direction: column;
   min-width: 50%;
@@ -17,11 +16,13 @@
 }
 
 .header {
+  outline: 1px solid black;
   text-align: center;
   height: 25px;
   background-color: #ddd;
-  height: max-content;
+  height: 25px;
   padding: 2px;
+  min-width: max-content;
 }
 
 #result {

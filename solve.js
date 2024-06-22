@@ -42,48 +42,52 @@ const calculate = (settings, max, target) => {
         source: "exponentiate",
         number: target,
       };
-    }
+    } else {
+      // generate all possible multiplying options
+      // where target = a * b
+      const premutations = generateCombinations(factors);
 
-    // generate all possible multiplying options
-    // where target = a * b
-    const premutations = generateCombinations(factors);
+      // for loop instead of foreach to save stack space :(
+      for (let i = 0; i < premutations.length; i++) {
+        const premutation = premutations[i];
 
-    // for loop instead of foreach to save stack space :(
-    for (let i = 0; i < premutations.length; i++) {
-      const premutation = premutations[i];
-
-      const solution = [
-        // try all of premutations
-        multiplyAll(premutation[0]),
-        multiplyAll(premutation[1]),
-      ];
-      // calculate for a and b
-      const a = calculate(settings, max, solution[0]);
-      const b = calculate(settings, max, solution[1]);
-      const steps = a[1] + b[1]; // calculate amount of steps
-      if (min > steps) {
-        min = steps;
-        min_solution = {
-          a: a[0],
-          b: b[0],
-          source: "multiply",
-          number: target,
-        };
+        const solution = [
+          // try all of premutations
+          multiplyAll(premutation[0]),
+          multiplyAll(premutation[1]),
+        ];
+        // calculate for a and b
+        const a = calculate(settings, max, solution[0]);
+        const b = calculate(settings, max, solution[1]);
+        const steps = a[1] + b[1]; // calculate amount of steps
+        if (min > steps) {
+          min = steps;
+          min_solution = {
+            a: a[0],
+            b: b[0],
+            source: "multiply",
+            number: target,
+          };
+        }
+      }
+      if (!settings.advanced && min_solution && min < aditionSteps) {
+        cache[target] = [min_solution, min + 1];
+        return cache[target];
       }
     }
-    // save data to cache
-    if (min_solution && min < aditionSteps) {
-      cache[target] = [min_solution, min + 1];
-      return cache[target];
-    }
   }
-
-  // we can safely (?) skip addition solution
-  // if multiplying already gave better solution
-  if (settings.add) {
+  if (settings.add && min > 2) {
     // loop for each number to max extracted
-    for (let num = 1; num <= max; num++) {
+
+    //     for (let num = 1; num <= max; num++) {
+    // for (let num = Math.ceil(target/2); num >= max; num--) {
+    for (
+      let num = settings.advanced ? Math.ceil(target / 2) : 1;
+      settings.advanced ? num >= max : num <= max;
+      settings.advanced ? num-- : num++
+    ) {
       const a = calculate(settings, max, target - num); // calculate for remaining number
+      if (a[1] >= min) continue;
       const b = calculate(settings, max, num); // calculate for number
       const steps = a[1] + b[1];
       if (steps < min) {
@@ -94,6 +98,7 @@ const calculate = (settings, max, target) => {
           source: "add",
           number: target,
         };
+        if (min <= 2) break;
       }
     }
   }
@@ -152,8 +157,8 @@ const purgeCache = () => {
 };
 
 const getCache = () => {
-  return cache
-}
+  return cache;
+};
 
 const solve = (settings, max, target) => {
   // purge cache if max number is not the same

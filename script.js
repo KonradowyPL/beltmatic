@@ -1,7 +1,5 @@
 import { solve, purgeCache, getCache } from "./solve.js";
 
-
-
 const progress = document.getElementById("progress");
 const json = document.getElementById("json");
 document.getElementById("mainform").onsubmit = async (e) => {
@@ -10,31 +8,36 @@ document.getElementById("mainform").onsubmit = async (e) => {
     add: document.getElementById("add").checked,
     multiply: document.getElementById("multiply").checked,
     exponents: document.getElementById("exponentiation").checked,
+    advanced: document.getElementById("advanced").checked,
   };
   const max = +document.getElementById("max").value;
   const target = +document.getElementById("target").value;
 
   if (!(max && target)) return;
   progress.textContent = "Caluclating...";
-  document.getElementById("result").innerHTML = ""
-  document.getElementById("json").innerHTML = ""
-  document.getElementById("formula").innerHTML =""
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("json").innerHTML = "";
+  document.getElementById("formula").innerHTML = "";
   await new Promise((resolve) => setTimeout(resolve, 0));
+  const start = new Date();
 
   try {
-  const answer = solve(settings, max, target);
-  progress.textContent = `Succes! Found solution using ${answer[1]} steps!`;
-  json.textContent = JSON.stringify(answer)
-  document.getElementById("formula").innerHTML ="Math formula: " +  displayFormula(answer[0]);
-  display(answer[0], document.getElementById("result"));
+    const answer = solve(settings, max, target);
+    const time = new Date() - start;
+    progress.textContent = `Succes! Found ${answer[1]} step solution in ${
+      Math.round(time / 100) / 10
+    }s! Tried ${Object.keys(getCache()).length} solutions.`;
+    json.textContent = JSON.stringify(answer);
+    document.getElementById("formula").innerHTML =
+      "Math formula: " + displayFormula(answer[0]);
+    display(answer[0], document.getElementById("result"));
   } catch (e) {
     progress.textContent = `Error: ${e.message}`;
-    throw e
+    throw e;
   }
 };
 
 const displayFormula = (data) => {
-
   const type = data.source;
   if (type == "extractor") return `${data.number}`;
 
@@ -43,7 +46,7 @@ const displayFormula = (data) => {
     multiply: "(%a*%b)",
     exponentiate: "(%a<sup>%b</sup>)",
   };
-  
+
   return map[data.source]
     .replace("%a", displayFormula(data.a))
     .replace("%b", displayFormula(data.b));
