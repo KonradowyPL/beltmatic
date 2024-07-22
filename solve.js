@@ -5,7 +5,7 @@ const calculate = (settings, max, target) => {
   if (cache[target]) return cache[target];
 
   // you can extract this number
-  if (target <= max) {
+  if (target <= max && target % 10 != 0) {
     cache[target] = [{ number: target, source: "extractor" }, 0];
     return cache[target];
   }
