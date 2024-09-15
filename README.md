@@ -5,7 +5,6 @@
 
 👉 [Game Steam page](https://store.steampowered.com/app/2674590)<br>
 👉 [Online Calculator](https://konradowypl.github.io/beltmatic)<br>
-👉 [Other Calculator](https://dbrentley.github.io/beltmatic-solver/) (slower, does not give shortest solution)<br>
 This simple solver for Beltmatic tells you what numbers to use and what operations to do to get from any number to any other number.
 <br>
 It allows you to specify what operations you have unlocked.

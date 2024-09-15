@@ -27,6 +27,7 @@
 
 #result {
   display: inline-flex;
+  margin-right: 10px;
 }
 
 
@@ -41,4 +42,8 @@ details:has(:empty) {
 
 #result:empty {
   display: none;
+}
+
+code {
+  word-break: break-all;
 }

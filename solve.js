@@ -1,18 +1,22 @@
 const cache = {};
 
-const calculate = (settings, max, target) => {
+const calculate = (settings, max, target, maxDepth) => {
   // cache
   if (cache[target]) return cache[target];
 
   // you can extract this number
-  if (target <= max && target % 10 != 0) {
+  if (target <= max && target % 10 !== 0) {
     cache[target] = [{ number: target, source: "extractor" }, 0];
     return cache[target];
   }
 
+  if (maxDepth <= 0) {
+    return [null, Number.POSITIVE_INFINITY];
+  }
+
   // vars for min solution
-  var min = Infinity;
-  var min_solution = undefined;
+  let min = Number.POSITIVE_INFINITY;
+  let min_solution = null;
 
   const aditionSteps = Math.ceil(target / max);
 
@@ -32,8 +36,8 @@ const calculate = (settings, max, target) => {
       const base = factors[0];
       const exponent = factors.length;
 
-      const a = calculate(settings, max, base); // calculate for base
-      const b = calculate(settings, max, exponent); // calculate for expoenent
+      const a = calculate(settings, max, base, min - 1); // calculate for base
+      const b = calculate(settings, max, exponent, min - 1); // calculate for expoenent
 
       min = a[1] + b[1]; // calculate amount of steps
       min_solution = {
@@ -57,8 +61,8 @@ const calculate = (settings, max, target) => {
           multiplyAll(premutation[1]),
         ];
         // calculate for a and b
-        const a = calculate(settings, max, solution[0]);
-        const b = calculate(settings, max, solution[1]);
+        const a = calculate(settings, max, solution[0], min - 1);
+        const b = calculate(settings, max, solution[1], min - 1);
         const steps = a[1] + b[1]; // calculate amount of steps
         if (min > steps) {
           min = steps;
@@ -86,9 +90,9 @@ const calculate = (settings, max, target) => {
       settings.advanced ? num >= max : num <= max;
       settings.advanced ? num-- : num++
     ) {
-      const a = calculate(settings, max, target - num); // calculate for remaining number
+      const a = calculate(settings, max, target - num, min - 1); // calculate for remaining number
       if (a[1] >= min) continue;
-      const b = calculate(settings, max, num); // calculate for number
+      const b = calculate(settings, max, num, min - 1); // calculate for number
       const steps = a[1] + b[1];
       if (steps < min) {
         min = steps;
@@ -128,8 +132,9 @@ function generateCombinations(arr) {
 }
 
 // returns prime factors from number and prime array
-function findPrimeFactors(num) {
-  let primeFactors = [];
+function findPrimeFactors(_num) {
+  let num = _num;
+  const primeFactors = [];
   for (let i = 2; i <= num; i++) {
     while (num % i === 0) {
       primeFactors.push(i);
@@ -149,8 +154,8 @@ function multiplyAll(items) {
 export { solve, purgeCache, getCache };
 
 const purgeCache = () => {
-  for (var prop in cache) {
-    if (cache.hasOwnProperty(prop)) {
+  for (const prop in cache) {
+    if (Object.hasOwn(cache, prop)) {
       delete cache[prop];
     }
   }
@@ -164,6 +169,6 @@ const solve = (settings, max, target) => {
   // purge cache if max number is not the same
   purgeCache();
 
-  const answer = calculate(settings, max, target);
+  const answer = calculate(settings, max, target, Number.POSITIVE_INFINITY);
   return answer;
 };
