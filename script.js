@@ -1,41 +1,41 @@
-import { solve, purgeCache, getCache } from "./solve.js";
+// import { solve, purgeCache, getCache } from "./solve.js";
 
 const progress = document.getElementById("progress");
 const json = document.getElementById("json");
-document.getElementById("mainform").onsubmit = async (e) => {
-  e.preventDefault();
-  const settings = {
-    add: document.getElementById("add").checked,
-    multiply: document.getElementById("multiply").checked,
-    exponents: document.getElementById("exponentiation").checked,
-    advanced: document.getElementById("advanced").checked,
-  };
-  const max = +document.getElementById("max").value;
-  const target = +document.getElementById("target").value;
+// document.getElementById("mainform").onsubmit = async (e) => {
+//   e.preventDefault();
+//   const settings = {
+//     add: document.getElementById("add").checked,
+//     multiply: document.getElementById("multiply").checked,
+//     exponents: document.getElementById("exponentiation").checked,
+//     advanced: document.getElementById("advanced").checked,
+//   };
+//   const max = +document.getElementById("max").value;
+//   const target = +document.getElementById("target").value;
 
-  if (!(max && target)) return;
-  progress.textContent = "Calculating...";
-  document.getElementById("result").innerHTML = "";
-  document.getElementById("json").innerHTML = "";
-  document.getElementById("formula").innerHTML = "";
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  const start = new Date();
+//   if (!(max && target)) return;
+// progress.textContent = "Calculating...";
+// document.getElementById("result").innerHTML = "";
+// document.getElementById("json").innerHTML = "";
+// document.getElementById("formula").innerHTML = "";
+//   await new Promise((resolve) => setTimeout(resolve, 0));
+//   const start = new Date();
 
-  try {
-    const answer = solve(settings, max, target);
-    const time = new Date() - start;
-    progress.textContent = `Succes! Found ${answer[1]} step solution in ${
-      Math.round(time / 100) / 10
-    }s! Tried ${Object.keys(getCache()).length} solutions.`;
-    json.textContent = JSON.stringify(answer);
-    document.getElementById("formula").innerHTML =
-      "Math formula: " + displayFormula(answer[0]);
-    display(answer[0], document.getElementById("result"));
-  } catch (e) {
-    progress.textContent = `Error: ${e.message}`;
-    throw e;
-  }
-};
+//   // try {
+//   //   const answer = solve(settings, max, target);
+//   //   const time = new Date() - start;
+//   //   progress.textContent = `Succes! Found ${answer[1]} step solution in ${
+//   //     Math.round(time / 100) / 10
+//   //   }s! Tried ${Object.keys(getCache()).length} solutions.`;
+//   //   json.textContent = JSON.stringify(answer);
+// document.getElementById("formula").innerHTML =
+//   "Math formula: " + displayFormula(answer[0]);
+//   //   display(answer[0], document.getElementById("result"));
+//   // } catch (e) {
+//   //   progress.textContent = `Error: ${e.message}`;
+//   //   throw e;
+//   // }
+// };
 
 const displayFormula = (data) => {
   const type = data.source;
@@ -83,3 +83,47 @@ const display = (data, div) => {
     display(data.b, b);
   }
 };
+
+// Create worker
+const worker = new Worker("worker.js");
+
+worker.onmessage = (e) => {
+  if (e.data.type === "DONE") {
+    console.log("Computation finished, result:", e.data.result);
+
+    display(e.data.result, document.getElementById("result"));
+
+    document.getElementById("formula").innerHTML =
+      "Math formula: " + displayFormula(e.data.result);
+
+    progress.textContent = "Done!";
+
+    
+  } else if (e.data.type === "STOPPED") {
+    console.log("Computation stopped by user.");
+  }
+};
+
+// Functions to control worker
+function runComputation(args) {
+  worker.postMessage({ type: "RUN", args });
+}
+
+function stopComputation() {
+  worker.postMessage({ type: "STOP" });
+}
+
+document.getElementById("mainform").onsubmit = (e) => {
+  e.preventDefault();
+
+  progress.textContent = "Calculating...";
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("json").innerHTML = "";
+  document.getElementById("formula").innerHTML = "";
+
+  const max = +document.getElementById("max").value;
+  const target = +document.getElementById("target").value;
+
+  runComputation({ max, target, settings: 0 });
+};
+// document.querySelector("#stopBtn").onclick = () => stopComputation();
