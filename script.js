@@ -2,6 +2,7 @@
 
 const progress = document.getElementById("progress");
 const json = document.getElementById("json");
+let start = null;
 
 document.getElementById("mainform").onsubmit = async (e) => {
   e.preventDefault();
@@ -9,7 +10,6 @@ document.getElementById("mainform").onsubmit = async (e) => {
     add: document.getElementById("add").checked,
     multiply: document.getElementById("multiply").checked,
     exponents: document.getElementById("exponentiation").checked,
-    advanced: document.getElementById("advanced").checked,
   };
   const max = +document.getElementById("max").value;
   const target = +document.getElementById("target").value;
@@ -20,16 +20,16 @@ document.getElementById("mainform").onsubmit = async (e) => {
   document.getElementById("json").innerHTML = "";
   document.getElementById("formula").innerHTML = "";
 
-  // const start = new Date();
+  start = new Date();
 
   runComputation({ max, target, settings });
 
   // try {
   //   const answer = solve(settings, max, target);
   //   const time = new Date() - start;
-  //   progress.textContent = `Succes! Found ${answer[1]} step solution in ${
-  //     Math.round(time / 100) / 10
-  //   }s! Tried ${Object.keys(getCache()).length} solutions.`;
+  // progress.textContent = `Succes! Found ${answer[1]} step solution in ${
+  //   Math.round(time / 100) / 10
+  // }s! Tried ${Object.keys(getCache()).length} solutions.`;
   //   json.textContent = JSON.stringify(answer);
   //   document.getElementById("formula").innerHTML =
   //     "Math formula: " + displayFormula(answer[0]);
@@ -69,7 +69,7 @@ const display = (data, div) => {
 
   const map = {
     add: "%a+%b",
-    multiply: "%a*%b",
+    multiply: "%a×%b",
     exponentiate: "%a<sup>%b</sup>",
   };
 
@@ -92,14 +92,19 @@ const worker = new Worker("worker.js");
 
 worker.onmessage = (e) => {
   if (e.data.type === "DONE") {
+    const answer = e.data.result;
     console.log("Computation finished, result:", e.data.result);
+    const time = new Date() - start;
 
-    display(e.data.result[0], document.getElementById("result"));
+    progress.textContent = `Succes! Found ${answer[1]} step solution in ${
+      Math.round(time / 100) / 10
+    }s!`;
+
+    display(answer[0], document.getElementById("result"));
 
     document.getElementById("formula").innerHTML =
-      "Math formula: " + displayFormula(e.data.result[0]);
+      "Math formula: " + displayFormula(answer[0]);
 
-    progress.textContent = "Done!";
   } else if (e.data.type === "STOPPED") {
     console.log("Computation stopped by user.");
   }

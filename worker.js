@@ -30,7 +30,11 @@ async function loopYield(signal) {
     throw new Error("Aborted"); // exit computation cleanly
   }
 
-  if (Math.random() < 0.001) await new Promise((r) => setTimeout(r, 0)); // yield back to event loop
+  if (Math.random() < 0.01) {
+    // yield back to event loop
+    await new Promise((r) => setTimeout(r, 0));
+    console.log("Ping!", Math.random());
+  }
 }
 
 async function solver(settings, max, target, signal) {
@@ -63,8 +67,6 @@ async function solver(settings, max, target, signal) {
     let min = Number.POSITIVE_INFINITY;
     let min_solution = null;
 
-    const aditionSteps = Math.ceil(target / max);
-
     // multiplication
     // we have to asume that unlocking exponents
     // means having unlocked multiplying
@@ -82,7 +84,7 @@ async function solver(settings, max, target, signal) {
         const exponent = factors.length;
 
         const a = await calculate(settings, max, base, min - 1); // calculate for base
-        const b = await calculate(settings, max, exponent, min - 1); // calculate for expoenent
+        const b = await calculate(settings, max, exponent, min - 1 - a[1]); // calculate for expoenent
 
         min = a[1] + b[1]; // calculate amount of steps
         min_solution = {
@@ -107,7 +109,7 @@ async function solver(settings, max, target, signal) {
           ];
           // calculate for a and b
           const a = await calculate(settings, max, solution[0], min - 1);
-          const b = await calculate(settings, max, solution[1], min - 1);
+          const b = await calculate(settings, max, solution[1], min - 1 - a[1]);
           const steps = a[1] + b[1]; // calculate amount of steps
           if (min > steps) {
             min = steps;
@@ -130,7 +132,7 @@ async function solver(settings, max, target, signal) {
       for (let num = Math.ceil(target / 2); num >= max; num--) {
         const a = await calculate(settings, max, target - num, min - 1); // calculate for remaining number
         if (a[1] >= min) continue;
-        const b = await calculate(settings, max, num, min - 1); // calculate for number
+        const b = await calculate(settings, max, num, min - 1 - a[1]); // calculate for number
         const steps = a[1] + b[1];
         if (steps < min) {
           min = steps;
@@ -148,7 +150,7 @@ async function solver(settings, max, target, signal) {
     // save data to cache
     cache[target] = [min_solution, min + 1];
 
-    await loopYield(signal);
+    await loopYield(signal, globalSolveObj);
 
     return cache[target];
   }
