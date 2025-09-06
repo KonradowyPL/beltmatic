@@ -14,7 +14,7 @@ document.getElementById("mainform").onsubmit = async (e) => {
   const target = +document.getElementById("target").value;
 
   if (!(max && target)) return;
-  progress.textContent = "Caluclating...";
+  progress.textContent = "Calculating...";
   document.getElementById("result").innerHTML = "";
   document.getElementById("json").innerHTML = "";
   document.getElementById("formula").innerHTML = "";
